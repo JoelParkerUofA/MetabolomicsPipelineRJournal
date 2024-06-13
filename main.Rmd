@@ -1,29 +1,33 @@
 ---
-title: "MetabolomicsPipeline: An R Package for metabolomics research"
-date: "2024-6-11"
+title: "ToOoOlTiPs: An R Package for Customizable Tooltips in Interactive Graphics"
+date: "2022-11-09"
 abstract: >
   An abstract of less than 150 words.
 draft: true
 author:  
-  - name: Joel Parker M.S
-    affiliation: University of Arizona
+  - name: Quietest Quokka
+    affiliation: University of Little Mates
     address:
-    - Department of Epidemiology and Biostatistics
-    - Tucson, Arizona
-    url: https://publichealth.arizona.edu/departments/epi-bio/biostatistics
-    orcid: 0000-0002-3411-3818
-    email: joelparker@arizona.edu
-  - name: Bonnie LaFleur PhD
+    - Department of Letter Q
+    - Somewhere, Australia
+    url: https://www.britannica.com/animal/quokka
+    orcid: 0000-1721-1511-1101
+    email:  qquo@ulm.edu
+  - name: Bounciest Bilby
     affiliation:
-    -  R. Ken Coit College of Pharmacy
-    - Bio5 Institute
+    - University of Little Mates
+    - University of Aussie Animals
     address:
-    url: https://www.pharmacy.arizona.edu/person/bonnie-lafleur-0
-    email: blafleur@arizona.edu
-    orcid: 0000-0002-4939-9337
+    - Department of Letter Q, Somewhere, Australia
+    - Department of Marsupials, Somewhere, Australia
+    url: https://www.britannica.com/animal/bilby
+    email: bbil@ulm.edu
+    orcid: 0000-0002-0912-0225
 type: package
 output: 
-  rjtools::rjournal_article:
+  rjtools::rjournal_pdf_article:
+    toc: no
+  rjtools::rjournal_web_article:
     self_contained: yes
     toc: no
 bibliography: RJreferences.bib
@@ -39,37 +43,10 @@ library(kableExtra)
 ```
 
 # Introduction
-Introduction to Metabolon:
-* What is Metabolon?
-* What do they provide their customers (types of analysis).
 
-Limitations of results from metabolon.
-* Metabolon uses proprietary source code
-* Additional quality control
-* Further exploration
-* Customized analysis
-* Many plots to sort through
-* Subpathway hypothesis testing
+Interactive data graphics provides plots that allow users to interact them. One of the most basic types of interaction is through tooltips, where users are provided additional information about elements in the plot by moving the cursor over the plot.
 
-Introduction to MetabolomomicsPipeline:
-* Provides users with the tools for an end to end workflow for the analysis 
-of Metabolon data.
-
-* Uses common data structures to allow for easy integration with preexisting
-genomic pipelines. 
-
-* Pairwise comparisons for metabolites which can handle differing experimental
-designs. 
-
-* Interactive plotting to help identify metabolites of interest.
-
-* R package can be utilized through an R shiny wrapper
-
-
-**Picture of workflow**
-
-
-
+This paper will first review some R packages on interactive graphics and their tooltip implementations. A new package \CRANpkg{ToOoOlTiPs} that provides customized tooltips for plot, is introduced. Some example plots will then be given to showcase how these tooltips help users to better read the graphics. 
 
 # Background
 
