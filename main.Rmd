@@ -169,7 +169,7 @@ lead to a larger $\tilde{X}$.
 
 
 
-<<algorithm details>>
+
 
 Using the MetabolomicsPipeline package, the subpathway analysis can be implemented
 using the subpathway_analysis function which provides the pvalues for each model 
@@ -184,11 +184,8 @@ including
 
 * Metabolite results within sub pathways (met_within_sub)
 
-
-
-
 ## Metabolite analysis
-
+At the metabolite level 
 
 ## Box plots and heatmaps
 
