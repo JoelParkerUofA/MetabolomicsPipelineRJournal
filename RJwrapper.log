@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.6.13)  13 JUN 2024 11:32
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.7.5)  5 JUL 2024 13:55
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
 **RJwrapper.tex
 (./RJwrapper.tex
-LaTeX2e <2024-06-01> patch level 1
+LaTeX2e <2024-06-01> patch level 2
 L3 programming layer <2024-05-27>
 (/Users/joelparker/Library/TinyTeX/texmf-dist/tex/latex/base/report.cls
 Document Class: report 2024/02/08 v1.4n Standard LaTeX document class
@@ -561,7 +561,7 @@ LaTeX Info: Redefining \] on input line 2954.
 ) (/Users/joelparker/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/amssymb.sty
 Package: amssymb 2013/01/14 v3.01 AMS font symbols
 ) (/Users/joelparker/Library/TinyTeX/texmf-dist/tex/latex/tools/array.sty
-Package: array 2024/05/23 v2.6c Tabular extension package (FMi)
+Package: array 2024/06/14 v2.6d Tabular extension package (FMi)
 \col@sep=\dimen286
 \ar@mcellbox=\box68
 \extrarowheight=\dimen287
@@ -626,7 +626,8 @@ LaTeX Info: Redefining \addtolength on input line 81.
 File: l3backend-pdftex.def 2024-05-08 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count339
 \l__pdf_internal_box=\box75
-) (./RJwrapper.aux)
+)
+No file RJwrapper.aux.
 \openout1 = `RJwrapper.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 48.
@@ -714,7 +715,6 @@ Package: upquote 2012/04/19 v1.3 upright-quote and grave-accent glyphs in verbat
 )
 Package backref Info: ** backref set up for natbib ** on input line 48.
 Package hyperref Info: Link coloring ON on input line 48.
-(./RJwrapper.out) (./RJwrapper.out)
 \@outlinefile=\write5
 \openout5 = `RJwrapper.out'.
 
@@ -724,39 +724,72 @@ Package caption Info: longtable package is loaded.
 Package: ltcaption 2021/01/08 v1.4c longtable captions (AR)
 )
 Package caption Info: End \AtBeginDocument code.
-(./main.tex
-<figures/penguins.png, id=40, 72.27pt x 42.9605pt>
+(./Main.tex
+LaTeX Font Info:    Trying to load font information for TS1+ppl on input line 25.
+(/Users/joelparker/Library/TinyTeX/texmf-dist/tex/latex/psnfss/ts1ppl.fd
+File: ts1ppl.fd 2001/06/04 font definitions for TS1/ppl.
+)
+<figures/Workflow.png, id=7, 813.0375pt x 813.0375pt>
+File: figures/Workflow.png Graphic file (type png)
+<use figures/Workflow.png>
+Package pdftex.def Info: figures/Workflow.png  used on input line 35.
+(pdftex.def)             Requested size: 398.32983pt x 212.53851pt.
+
+Overfull \hbox (12.18309pt too wide) in paragraph at lines 38--40
+[]\T1/ppl/m/n/9 (-20) The Metabolomic-sPipeline pack-age uti-lizes Sum-ma-rized-Ex-per-i-ment to or-ga-nize tar-geted metabolomic
+ []
+
+
+
+[1{/Users/joelparker/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/Users/joelparker/Library/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc}
+
+]
+<figures/SEOrganization.png, id=22, 813.0375pt x 813.0375pt>
+File: figures/SEOrganization.png Graphic file (type png)
+<use figures/SEOrganization.png>
+Package pdftex.def Info: figures/SEOrganization.png  used on input line 62.
+(pdftex.def)             Requested size: 398.32983pt x 212.53851pt.
+
+
+[2 <./figures/Workflow.png> <./figures/SEOrganization.png>]
+
+LaTeX Warning: Reference `fig:penguins-alison' on page 3 undefined on input line 114.
+
+<figures/penguins.png, id=36, 72.27pt x 42.9605pt>
 File: figures/penguins.png Graphic file (type png)
 <use figures/penguins.png>
-Package pdftex.def Info: figures/penguins.png  used on input line 36.
+Package pdftex.def Info: figures/penguins.png  used on input line 117.
 (pdftex.def)             Requested size: 398.44772pt x 212.57635pt.
-LaTeX Font Info:    Trying to load font information for T1+zi4 on input line 39.
+
+LaTeX Warning: Reference `tab:penguins-tab-static' on page 3 undefined on input line 120.
+
+LaTeX Font Info:    Trying to load font information for T1+zi4 on input line 120.
 (/Users/joelparker/Library/TinyTeX/texmf-dist/tex/latex/inconsolata/t1zi4.fd
 File: t1zi4.fd 2018/01/14 T1/zi4 (Inconsolata)
 )
 LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
-(Font)              scaled to size 9.18004pt on input line 39.
+(Font)              scaled to size 9.18004pt on input line 120.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `zi4' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-LaTeX Font Info:    Trying to load font information for OT1+ppl on input line 46.
+LaTeX Font Info:    Trying to load font information for OT1+ppl on input line 127.
 (/Users/joelparker/Library/TinyTeX/texmf-dist/tex/latex/psnfss/ot1ppl.fd
 File: ot1ppl.fd 2001/06/04 font definitions for OT1/ppl.
 )
-LaTeX Font Info:    Trying to load font information for OML+zplm on input line 46.
+LaTeX Font Info:    Trying to load font information for OML+zplm on input line 127.
 (/Users/joelparker/Library/TinyTeX/texmf-dist/tex/latex/psnfss/omlzplm.fd
 File: omlzplm.fd 2002/09/08 Fontinst v1.914 font definitions for OML/zplm.
 )
-LaTeX Font Info:    Trying to load font information for OMS+zplm on input line 46.
+LaTeX Font Info:    Trying to load font information for OMS+zplm on input line 127.
 (/Users/joelparker/Library/TinyTeX/texmf-dist/tex/latex/psnfss/omszplm.fd
 File: omszplm.fd 2002/09/08 Fontinst v1.914 font definitions for OMS/zplm.
 )
-LaTeX Font Info:    Trying to load font information for OMX+zplm on input line 46.
+LaTeX Font Info:    Trying to load font information for OMX+zplm on input line 127.
 (/Users/joelparker/Library/TinyTeX/texmf-dist/tex/latex/psnfss/omxzplm.fd
 File: omxzplm.fd 2002/09/08 Fontinst v1.914 font definitions for OMX/zplm.
 )
-LaTeX Font Info:    Trying to load font information for OT1+zplm on input line 46.
+LaTeX Font Info:    Trying to load font information for OT1+zplm on input line 127.
 (/Users/joelparker/Library/TinyTeX/texmf-dist/tex/latex/psnfss/ot1zplm.fd
 File: ot1zplm.fd 2002/09/08 Fontinst v1.914 font definitions for OT1/zplm.
 )
@@ -765,72 +798,51 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 7.29405pt on input line 46.
+(Font)              scaled to size 7.29405pt on input line 127.
 (/Users/joelparker/Library/TinyTeX/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 5.21004pt on input line 46.
+(Font)              scaled to size 5.21004pt on input line 127.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 7.29405pt on input line 46.
+(Font)              scaled to size 7.29405pt on input line 127.
 (/Users/joelparker/Library/TinyTeX/texmf-dist/tex/latex/microtype/mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 5.21004pt on input line 46.
-<main_files/figure-latex/penguins-ggplot-1.pdf, id=45, 469.755pt x 361.35pt>
-File: main_files/figure-latex/penguins-ggplot-1.pdf Graphic file (type pdf)
-<use main_files/figure-latex/penguins-ggplot-1.pdf>
-Package pdftex.def Info: main_files/figure-latex/penguins-ggplot-1.pdf  used on input line 76.
+(Font)              scaled to size 5.21004pt on input line 127.
+
+LaTeX Warning: Reference `fig:penguins-ggplot' on page 3 undefined on input line 146.
+
+<Main_files/figure-latex/penguins-ggplot-1.pdf, id=38, 469.755pt x 361.35pt>
+File: Main_files/figure-latex/penguins-ggplot-1.pdf Graphic file (type pdf)
+<use Main_files/figure-latex/penguins-ggplot-1.pdf>
+Package pdftex.def Info: Main_files/figure-latex/penguins-ggplot-1.pdf  used on input line 157.
 (pdftex.def)             Requested size: 469.75386pt x 361.34912pt.
 
-Overfull \hbox (71.41528pt too wide) in paragraph at lines 76--77
+Overfull \hbox (71.41528pt too wide) in paragraph at lines 157--158
  [][] 
  []
 
 
 
-[1{/Users/joelparker/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/Users/joelparker/Library/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc}
+[3{/Users/joelparker/Library/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}]
 
-{/Users/joelparker/Library/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}]
+! LaTeX Error: Lonely \item--perhaps a missing list environment.
 
-[2 <./figures/penguins.png> <./main_files/figure-latex/penguins-ggplot-1.pdf>]
-LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 9.37807pt on input line 92.
-LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 9.37807pt on input line 92.
-
-LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
-(Font)              using `T1/zi4/m/n' instead on input line 114.
-
-LaTeX Font Info:    Font shape `T1/zi4/m/it' will be
-(Font)              scaled to size 9.18004pt on input line 114.
-)
-
-[3] (./RJwrapper.aux)
- ***********
-LaTeX2e <2024-06-01> patch level 1
-L3 programming layer <2024-05-27>
- ***********
-
-LaTeX Font Warning: Some font shapes were not available, defaults substituted.
-
-Package rerunfilecheck Info: File `RJwrapper.out' has not changed.
-(rerunfilecheck)             Checksum: 91D427CA0B5D315A9DD8A3698A71F801;1300.
- ) 
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.172 
+       
 Here is how much of TeX's memory you used:
- 26628 strings out of 475560
- 487339 string characters out of 5776795
- 1948905 words of memory out of 5000000
- 48632 multiletter control sequences out of 15000+600000
- 587517 words of font info for 154 fonts, out of 8000000 for 9000
+ 26679 strings out of 475544
+ 488197 string characters out of 5776422
+ 1943905 words of memory out of 5000000
+ 48662 multiletter control sequences out of 15000+600000
+ 587076 words of font info for 178 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 117i,11n,131p,1006b,663s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</Users/joelparker/Library/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb></Users/joelparker/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></Users/joelparker/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></Users/joelparker/Library/TinyTeX/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on RJwrapper.pdf (3 pages, 130338 bytes).
-PDF statistics:
- 125 PDF objects out of 1000 (max. 8388607)
- 106 compressed objects within 2 object streams
- 26 named destinations out of 1000 (max. 500000)
- 49231 words of extra memory for PDF output out of 51595 (max. 10000000)
+ 117i,11n,131p,1006b,687s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
+!  ==> Fatal error occurred, no output PDF file produced!
