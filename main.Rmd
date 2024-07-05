@@ -24,7 +24,7 @@ author:
     email: bbil@ulm.edu
     orcid: 0000-0002-0912-0225
 type: package
-output: 
+output:
   rjtools::rjournal_web_article:
     self_contained: yes
     toc: no
@@ -123,12 +123,77 @@ of metabolites in a given experiment, we filter metabolites based on there avera
 columns of the heatmap, additional arguments to the arrange function from tidyr can be passed to the metabololite_heatmap function. 
 
 ## Subpathway analysis
+Targeted metabolomic assays quantify predefined chemical compounds called metabolites. Therefore, the
+data being analyzed contains the amount of each chemical compound in each sample, where 
+each sample is a replicate of some experimental condition. Each of the metabolites is classified into predetermined
+sub pathways and super pathways. These classification are based on the specific biological function of the 
+metabolite. 
+
+Univariate analysis of variance (ANOVA) is commonly used to test if a significant amount of variance for each metabolite is explained by the
+experimental conditions. While this is effective for independently testing each metabolite, it does not allow us to test hypothesis at the 
+sub pathway level where each sub pathway contains one or more metabolites. To accomplish this, for each sub pathway, we can combine the results
+for each independently tested metabolite within the sub pathway using the combined
+fisher p-value method. To explain the details of this method, we will first explain the modeling 
+procedure at the metabolite level and then explain how the results are combined. 
+
+For each metabolite, we consider experimental designs with a block and treatment
+effects. (disscuss what types of experiment designs this includes). We use nested 
+ANOVA modeling using three different models for each metabolite. 
+
+1.) Interaction: $metabolite = Treatment Group + block + Treatment*block$
+
+2.) Parallel: $metabolite = Treatment Group + block$
+
+3.) Single: $metbabolite= Treatment$
+
+In the interaction model, we are testing for a significant interaction between
+the treatment and block variables. Therefore, we only consider the pvalue for the 
+interaction term. The parallel model considers the trantment and block variables without
+the interaction term and is testing to see if there is a significant amount of variance for 
+the metabolite accross the different levels of the block variable. Therefore, we are only considering the pvalue
+pertaining to the block variable. The final model is the single model which tests the treatment variable. 
+
+Once we have the pvalues for each model, we can then combine the pvalues from each 
+model using the combined fisher probability method. We will test at the subpathway level by combining the p-values for each
+metabolite within the subpathway for each model. We use a combination
+function given by $\tilde{X}$ which combines the pvalues, resulting in a
+chi-squared test statistic.
+
+$$
+\tilde{X} = -2\sum_{i=1}^k ln(p_i)
+$$
+where $k$ is the number of metabolites in the subpathway. We can
+get a p-value from $P(X \geq\tilde{X})$, knowing that
+$\tilde{X}\sim \chi^2_{2k}$. You will notice that smaller p-values will
+lead to a larger $\tilde{X}$. 
+
+
+
+<<algorithm details>>
+
+Using the MetabolomicsPipeline package, the subpathway analysis can be implemented
+using the subpathway_analysis function which provides the pvalues for each model 
+at the metabolite level and the sub pathway level. The algorithmic details are explained in figure 3. 
+The analysis can also be stratified by other variables. 
+The MetabolomicsPipeline package also provides ways to summarize the sub pathway analysis results 
+including
+
+* Significant sub pathways by model (subpath_by_model)
+
+* Proportion of significant sub pathways within super pathways (subpath_within_superpath)
+
+* Metabolite results within sub pathways (met_within_sub)
+
+
 
 
 ## Metabolite analysis
 
 
 ## Box plots and heatmaps
+
+
+## Shiny App
 
 
 # Case Study
