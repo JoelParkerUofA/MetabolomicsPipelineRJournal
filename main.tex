@@ -1,8 +1,8 @@
 % !TeX root = RJwrapper.tex
-\title{ToOoOlTiPs: An R Package for Customizable Tooltips in Interactive Graphics}
+\title{MetabolomicsPipeline: An R package for targeted metabolomics research.}
 
 
-\author{by Quietest Quokka and Bounciest Bilby}
+\author{by Joel Parker, Lisa White, and Bonnie Lafleur}
 
 \maketitle
 
@@ -12,13 +12,13 @@ An abstract of less than 150 words.
 
 \section{Introduction}\label{introduction}
 
-Targeted metabolomics assays quantify a set of predefined small molecules called metabolites. Assays like Matabolon Inc, classify each metabolite within sub pathways and super pathways based on its biological function. Depending on the goal of an experiment, the number of metabolites measured can range in size from 100s to thousands of metabolites. Metabolon Inc.~utilizes a proprietary pipeline for preprocessing, exploratory analysis, and statistical analysis to provide customers with raw data, batch-corrected data, normalized data, and analysis results.
+Targeted metabolomics assays quantify a set of predefined small molecules known as metabolites (Roberts et al. 2012). These assays categorize metabolites into sub-pathways based on biological function and further organize sub-pathways into super-pathways. Companies like Metabolon Inc.~utilize proprietary pipelines for preprocessing, exploratory data analysis, and statistical analysis. These pipelines provide customers with raw data, processed data, and analysis results (Metabolon, Inc., n.d.).
 
-While proprietary data analysis workflows can provide researchers with valuable results, they often do not follow the F.A.I.R guiding principles for reproducible research, which extends to workflows and pipelines (Wilkinson et al.~and Goble et al.~2022). In particular, proprietary pipelines are not reusable or allow researchers to replicate the results. Additionally, proprietary workflows are limited to the types of analysis they can do, with little flexibility to make data-driven analysis decisions. Alternatively, utilizing open source software R to build analysis workflows and distribute them through centralized repositories like the Comprehensive R Archive Network (CRAN) or Bioconductor makes it possible to reuse workflows for secondary analysis and contributes to reproducible research.
+While proprietary data analysis workflows can provide researchers with valuable results, they often adhere to the F.A.I.R guiding principles for reproducible research, which extends to workflows and pipelines Goble et al. (2020). Specifically, proprietary pipelines are not reusable and do not allow researchers to replicate the results. Moreover, proprietary workflows are limited to the types of analysis they can perform, with little flexibility to make data-driven analysis decisions. In contrast, utilizing open source software like R to build analysis workflows and distribute them through centralized repositories like the Comprehensive R Archive Network (CRAN) or Bioconductor enables the reuse of workflows for secondary analysis and promotes reproducible research.
 
-For R, there are several packages available for analyzing targeted metabolomics data. Packages like structToolbox and MetaboloAnalysistR provide open source tools for preprocessing, batch correction, and analysis of targeted metabolomic data (cite Metaboanalyst and structToolbox). However, these tools only provide functionality for hypothesis testing at the metabolite level and do not support hypothesis testing at the sub-pathway level. When hypothesis testing at the sub-pathway is of interest, we can independently test each metabolite and then combine the values within each sub-pathway using the combined Fisher probability test (cite combined Fisher prob). While the method has been leveraged in several experiments, to the best of our knowledge, there is not an R package that implements this method for sub-pathway testing.
+For R, several packages are available to analyze targeted metabolomics data. Packages like \pkg{autonomics}(Bhagwat et al. 2024) and \pkg{MetaboloAnalysistR}(Pang et al. 2020) provide open-source tools for preprocessing, batch correction, and analysis of targeted metabolomic data. However, these tools only offer functionality for hypothesis testing at the metabolite level and do not support hypothesis testing at the sub-pathway level. When hypothesis testing at the sub-pathway level is of interest, we can independently test each metabolite and then combine the p-values within each sub-pathway using the combined Fisher probability test (Westberg 1985). While this method has been leveraged in several experiments, to the best of our knowledge, there is no R package that implements this method for sub-pathway testing.
 
-In this article, we introduce and demonstrate the MetabolomicsPipeline R package. This package provides analysis tools for target metabolomic data from Metabolon, which can be broken into three categories (figure 1):
+In this article, we introduce and demonstrate the MetabolomicsPipeline R package. This package provides analysis tools for target metabolomic data from Metabolon, categorized into three categories (figure 1):
 
 \begin{itemize}
 \item
@@ -27,90 +27,41 @@ In this article, we introduce and demonstrate the MetabolomicsPipeline R package
   Sub pathway analysis
 \item
   Metabolite pairwise comparisons
-\item
-  line plots and boxplots
 \end{itemize}
 
 \begin{figure}
-\includegraphics[width=1\linewidth,height=0.3\textheight]{figures/Workflow} \caption{Figure 1. MetabolomicsPipeline workflow}\label{fig:Workflow}
+\includegraphics[width=1\linewidth,height=0.3\textheight]{figures/Workflow} \caption{MetabolomicsPipeline workflow}\label{fig:Workflow}
 \end{figure}
 
-The MetabolomicsPipeline package utilizes SummarizedExperiment to organize targeted metabolomic data into a common data structue to allow for easy integration into prexisting geneomic workflows. The package also produces interactive graphs to easily sort through results. Uses can also leverage the tools within the metabolomicsPipeline package through an R shiny app.
-The remainder of this paper will be organized as follows. Section 2 will cover the package design and structure, including mathematical details and algorithm information. Section 3 will demonstrate the package on a case study using targeted metabolomic data from Metabolon.
+The MetabolomicsPipeline utilizes the \pkg{SummarizedExperiment}(M et al. 2024) package to organize targeted metabolomics data into a standard data structure, facilitating easy integration into preexisting genomic workflows. Analysts can create interactive heatmaps to sort through and interpret analysis results quickly. In addition to the R package, an R shiny app is available with all of the functionality of the R package, providing an intuitive and interactive interface for users.
+
+The remainder of this paper is organized as follows. Section 2 discusses the package design and structure, providing detailed information on the analysis methods and algorithms used. Section 3 illustrates the application of the package through a case study using targeted metabolomic data from Metabolon.
 
 \section{Package Design}\label{package-design}
 
-Targeted metabolomic experiments contains several different data sets about the experiment.
-The metabolimic profiles for each sample is contained in a metabolite by sample data. There
-may be multiple versions of the data including the raw peak data, batch corrected data, or
-the normalized/standardized peak data. We also have chemical annotation data which contains
-information about each of the metabolites that are included in the assay. This information includes
-the subpathway and super pathway for each metabolite, the metabolite id, and the alias for each metabolite.
-Additionally, we have the sample metadata which contains information about each sample include which of the
-experiment groups each sample belongs to. Metabolon Inc.~includes all of this information in a single .xlsx
-file.
-
-SummarizedExpirment allows reseachers to store rectangular data, which is common to
-genomic research, in an organized fashion. When analyzing assays with data about
-the rows/features and metadata about the samples/columns, storing data in a summarizedExperiment
-can make it easier to access. This easy utility of the SumarizedExperiment makes it a widely used
-data structure an many genomic pipelines like \ldots{} . In figure 2, we show how targeted metabolomic
-data is organized inside a SummarizedExperiment object. We provide a wrapper function which can
-automatically load Metabolon INC data from the .xlsx file provided by Metabolon into a SummarizedExperiment.
+Metabolon Inc.~provides customers with raw, batch-corrected, and standardized data generated from their proprietary pipeline. Additionally, they include chemical annotation data, detailing the sub-pathway and super-pathway for each metabolite, as well as sample metadata for each sample in the experiment. Metabolon consolidates all this information into a single Excel file. By organizing the experimental data into a SummarizedExperiment class, users can maintain all relevant information throughout the entire workflow. While the \pkg{MetabolomicsPipline} package includes wrappers for quickly loading Metabolon Inc.~experiments into a SummarizedExperiment using the `load\_metabolon' function, the rest of the \pkg{MetabolomicPipeline} package is versatile enough to analyze experimental data from any targeted metabolomics assay that can be organized into a SummarizedExperiment data class. Figure 2, shows how to organize targeted metabolomics data into a SumarizedExperiment.
 
 \begin{figure}
 \includegraphics[width=1\linewidth,height=0.3\textheight]{figures/SEOrganization} \caption{Figure 2. Organization of Metabolon Inc data into a SummarizedExperiment}\label{fig:SEOrganization}
 \end{figure}
 
-Once the data is loaded into a summarized experiment, the types of analysis we can
-do can be categorized into four main categories descibed in figure 1. In the following
-subsections we describe the details behind the exploratory analsysis, subpathway analysis, metabolite
-analysis and the box plot and line plot categories.
+Once the data is loaded into a SummarizedExperiment, the types of analyses can be categorized into three main categories described in Figure 1. In the following subsections, we detail the exploratory analysis, sub-pathway analysis, and metabolite analysis. We also demonstrate the functionality within the \pkg{MetabolomicsPipeline} package to help researchers visualize and interpret the results.
 
 \subsection{Exploratory analysis}\label{exploratory-analysis}
 
-The MetabolomicsPipeline package provide tools for visualiztion which has overlap with a few preexisting
-pipeline lines. In the exploratory analysis, we include PCA and heatmap visualizations which
-allow us to graphically display sources of variation within the assay data.
+The \pkg{MetabolomicsPipeline} package provides visualization tools that overlap with a few preexisting pipeline lines. In the exploratory analysis, we include PCA and heatmap visualizations, which allow us to graphically display sources of variation within the assay data.
 
-During the exploratory analysis stages an analyst may want to inspect sources of variation which
-may or may not be part of the experimental design. This step is crucial for thinking about how
-we will modeling the data in a downsteam step. Sources of variation could be biological or technical
-and how to proceed can vary from analyst to analyst. One of the primary tools for accessing sources
-of variation in high dimensional data is principal component analysis (PCA). The first two principal
-components explain the most amount of variation in the data and can visualize sources
-of variation by plotting each sample using the first two principal components and coloring by a factor
-of interest. In the context of metaboloimic data, samples that are closer together, have more similar
-metabolmic profiles. If we see clusters of samples that correspond to a factor in our data, then we can say
-that factor accounts for variation in the data. Depending on the factor we are looking at, we may want
-to make upstreams adjustments in the analsysis (for example batch correction), stratify the down stream
-analsis, or if the factor we are looking at is part of the experimental design then we may carry on with the
-experiment as planned. Researchers can utilize the function metabolite\_pca to calculate the principal components
-and graph the first two PCs with a single function.
+Trying to visualize technical or biological sources of variation in the metabolomic profiles is challenging due to the high dimensional nature of the data. PCA is a valuable tool for reducing the dimensionality of the data by transforming the high dimensional data into new uncorrelated variables (principal components) that explain a maximal amount of the variance in the original data. Plotting the first two principal components together in a scatter plot reveals meaningful groupings and sources of variation. PCA also serves as a valuable quality control tool by highlighting technical sources of variation and may influence upstream and downstream analysis decisions. For example, if samples from different batches group together, the data must be batch-corrected before continuing with the downstream analysis. Using the \texttt{metabolite\_pca} function, users can simultaneously calculate and plot the principal components while highlighting factors contributing to the variation in the metabolomic data.
 
-Another way to visualize the variation in high dimensional data is through the use of heatmaps. Within the MetabolomicsPiepline
-package analysts can create heatmaps which show how the metabolites are changing across experimental conditions. Due to the high number
-of metabolites in a given experiment, we filter metabolites based on there average standardized peak values. To control the order of the
-columns of the heatmap, additional arguments to the arrange function from tidyr can be passed to the metabololite\_heatmap function.
+Heatmaps are versatile tools for visualizing metabolite trends and spotting correlations within the data. The \texttt{metabolite\_heatmap} function in the MetabolomicsPipline package displays the top metabolites based on the average metabolite levels. This function organizes data within a SummarizedExperiment to leverage the functionality of the \CRANpkg{pheatmap}(Kolde 2019) package to create well-annotated heatmaps. Annotated heatmaps allow researchers to easily spot trends and/or abnormalities across the experimental conditions.
 
-\subsection{Subpathway analysis}\label{subpathway-analysis}
+\subsection{sub-pathway analysis}\label{sub-pathway-analysis}
 
-Targeted metabolomic assays quantify predefined chemical compounds called metabolites. Therefore, the
-data being analyzed contains the amount of each chemical compound in each sample, where
-each sample is a replicate of some experimental condition. Each of the metabolites is classified into predetermined
-sub pathways and super pathways. These classification are based on the specific biological function of the
-metabolite.
+Targeted metabolomic assays quantify predefined metabolites. Therefore, the assay data contain the amount of each chemical compound in each sample, where each sample is a replicate of the experimental conditions of interest. The metabolites are classified into predefined groups, called sub-pathways, based on their biological functions. These sub-pathways are further grouped within broader categories known as super-pathways. After preprocessing and standardization, researchers commonly use univariate analysis of variance (ANOVA) to test if the average metabolite levels differ between the experimental groups. While this is effective for independently testing each metabolite, it does not allow us to test the hypotheses at the sub-pathway level where each sub-pathway contains one or more metabolites.
 
-Univariate analysis of variance (ANOVA) is commonly used to test if a significant amount of variance for each metabolite is explained by the
-experimental conditions. While this is effective for independently testing each metabolite, it does not allow us to test hypothesis at the
-sub pathway level where each sub pathway contains one or more metabolites. To accomplish this, for each sub pathway, we can combine the results
-for each independently tested metabolite within the sub pathway using the combined
-fisher p-value method. To explain the details of this method, we will first explain the modeling
-procedure at the metabolite level and then explain how the results are combined.
+To test metabolic profiles at the sub-pathway level, we can combine the results for each independently tested metabolite within the sub-pathway using the combined Fisher probability method (Westberg 1985). To explain the details of this method, we will first explain the modeling procedure at the metabolite level and then explain how the results are combined. The following modeling strategy outlines the \texttt{subpathway\_analysis} function in the \pkg{MetabolomicsPipline} package.
 
-For each metabolite, we consider experimental designs with a block and treatment
-effects. (disscuss what types of experiment designs this includes). We use nested
-ANOVA modeling using three different models for each metabolite.
+For each metabolite, we consider experimental designs that can utilize two-way ANOVA, such as randomized block designs. We employ a nested ANOVA modeling strategy to consider three different models.
 
 1.) Interaction: \(metabolite = Treatment Group + block + Treatment*block\)
 
@@ -118,132 +69,557 @@ ANOVA modeling using three different models for each metabolite.
 
 3.) Single: \(metbabolite= Treatment\)
 
-In the interaction model, we are testing for a significant interaction between
-the treatment and block variables. Therefore, we only consider the pvalue for the
-interaction term. The parallel model considers the trantment and block variables without
-the interaction term and is testing to see if there is a significant amount of variance for
-the metabolite accross the different levels of the block variable. Therefore, we are only considering the pvalue
-pertaining to the block variable. The final model is the single model which tests the treatment variable.
+In the interaction model, we test for a significant interaction between the treatment and block variables, focusing on the p-value for the interaction term. In contrast, the parallel model examines the treatment and block variables without the interaction term, assessing whether the blocking variable explains a significant amount of variation in the metabolite levels; thus, we only consider the p-value pertaining to the block variable. Lastly, the final model includes only the treatment group to determine if there are significant differences in average metabolite levels by treatment group.
 
-Once we have the pvalues for each model, we can then combine the pvalues from each
-model using the combined fisher probability method. We will test at the subpathway level by combining the p-values for each
-metabolite within the subpathway for each model. We use a combination
-function given by \(\tilde{X}\) which combines the pvalues, resulting in a
-chi-squared test statistic.
-
+Once we have the p-values for each model, we can test the hypothesis from each model at the sub-pathway level using the combined Fisher probability method. In this method, the p-values for each independently tested metabolite within the sub-pathway are transformed and summed to create the chi-squared test statistic \(X\) using the following function:
 \[
-\tilde{X} = -2\sum_{i=1}^k ln(p_i)
+X = -2\sum_{i=1}^k ln(p_i)
 \]
-where \(k\) is the number of metabolites in the subpathway. We can
-get a p-value from \(P(X \geq\tilde{X})\), knowing that
-\(\tilde{X}\sim \chi^2_{2k}\). You will notice that smaller p-values will
-lead to a larger \(\tilde{X}\).
+where \(k\) is the number of metabolites within the sub-pathway. The resulting test statistic \(X\) follows a chi-squared distribution with \(2k\) degrees of freedom. This allows us to combine the p-values from multiple independent tests into a single test at the sub-pathway level.
 
-\textless{}\textgreater{}
+The MetabolomicsPipeline package also provides ways to summarize the sub-pathway analysis results, including:
 
-\subsection{Metabolite analysis}\label{metabolite-analysis}
+\begin{itemize}
+\item
+  Significant sub-pathways by model (subpath\_by\_model)
+\item
+  Proportion of significant sub-pathways within super pathways (subpath\_within\_superpath)
+\item
+  Metabolite results within sub-pathways (met\_within\_sub)
+\end{itemize}
 
-\subsection{Box plots and heatmaps}\label{box-plots-and-heatmaps}
+Additionally, the package provides functionality to help visualize the data within sub-pathways identified in the sub-pathway analysis. Using the \texttt{subpathway\_lineplot} and \texttt{subpathway\_boxplot} functions, users can efficiently create line plots and box plots for each metabolite within a sub-pathway. These functions leverage the ggplot2 package, allowing users to tailor the plots to their needs.
+
+\subsection{Pairwise comparisons}\label{pairwise-comparisons}
+
+We can compare group means between the experimental groups to identify metabolites that differ between them. When the metabolite levels are on the log scale, this translates to differences in log fold changes between groups. The \pkg{MetabolitePipeline} package provides functionality to test all pairwise group comparisons for each metabolite using the metabolite\_pairwise function. The challenge with comparing pairwise group means, is preserving the family-wise error rate (FWER). If each comparison is performed with a significance level of \(\alpha=0.05\), then the FWER (the probability of incorrectly rejecting at least one test) increases.
+
+A first step to preserving the FWER at a prespecified level is to filter metabolites using an overall test of significance against analysis of variance (ANOVA). For each metabolite, we use ANOVA to test the null hypothesis that the group means are equal. Metabolites showing an overall difference in group means are then subjected to pairwise comparisons. The metabolite\_pairwise function provides the p-value for the overall test of significance as well as the unadjusted p-values for each of the pairwise comparisons. This allows the analyst the freedom to use any post-hoc p-value adjustment for their specific need.
+
+The \pkg{MetabolomicsPipline} package provides tools for summarizing the results from pairwise comparisons using heatmaps. Specifically, the `metabolite\_est\_heatmap' and the `metabolite\_pvalue\_heatmap' functions create heatmaps that organize metabolites in the rows and pairwise comparisons in the columns, providing a visual summary of mean difference estimates and p-values. Below, we highlight a few details about the heatmaps.
+
+\begin{itemize}
+\item
+  Inclusion Criteria: Metabolites that do not reject the overall test of significance at the \(\alpha = 0.05\) level are excluded from both heatmaps.
+  Organizational Structure: Metabolites grouped by sub pathway.
+\item
+  Mean difference heatmap (metabolite\_est\_heatmap): This heatmap highlights group comparisons with a mean difference greater than 2. When the metabolite data is on the log scale, this corresponds to a log fold change greater than 2.
+\item
+  P-value heatmap (metabolite\_pvalue\_heatmap): This heatmap highlights group comparisons with a statistically significant mean difference.
+\end{itemize}
+
+Each heatmap has a static or interactive option. The interactive heatmap option is valuable because it allows users to zoom in on particular areas of the heatmap and quickly identify sub-pathways with several significant metabolites for a given comparison. Hovering over the heatmap provides useful information about the given metabolite, including metabolite name, sub-pathway, super pathway, and pairwise comparison results.
+
+\subsection{Shiny App}\label{shiny-app}
+
+All of the functionality of the MetabolomicsPipeline package can be accessed through
 
 \section{Case Study}\label{case-study}
 
-\section{Summary}\label{summary}
+Here, we demonstrate how to utilize the tools within the \pkg{MetabolomicsPipeline} package through a case study involving metabolite measurements from 1102 metabolites in 86 (44 female, 46 male) samples from mice. This experiment includes samples taken at three different time points (presymptomatic, onset, and treatment), with three different treatments administered (treat1, treat2, control). The primary objective is to determine if there are differences in the metabolomic profiles across the three different treatment groups.
 
-Some packages on interactive graphics include \CRANpkg{plotly} (Sievert 2020) that interfaces with Javascript for web-based interactive graphics, \CRANpkg{crosstalk} (Cheng and Sievert 2021) that specializes cross-linking elements across individual graphics. The recent R Journal paper \CRANpkg{tsibbletalk} (Wang and Cook 2021) provides a good example of including interactive graphics into an article for the journal. It has both a set of linked plots, and also an animated gif example, illustrating linking between time series plots and feature summaries.
+We start by loading the experiment data and showing the number of samples in each of the
+experimental groups. To create the summary table, we use the \texttt{table1} function from the
+\pkg{table1}(Rich 2023) package to help create the table. The \texttt{loadMetabolon} function allows
+users to directly load Metabolon Inc data directly into a SummarizedExperiment. However,
+this example data is included in the MetabolomicsPipline package.
 
-\section{\texorpdfstring{Customizing tooltip design with \pkg{ToOoOlTiPs}}{Customizing tooltip design with }}\label{customizing-tooltip-design-with}
+\begin{verbatim}
+# Load Metabolon data from the Excel file
+# dat <- loadMetabolon(path = "../data/Metabolon.xlsx")
+data("demoDat", package = "MetabolomicsPipeline")
 
-\pkg{ToOoOlTiPs} is a packages for customizing tooltips in interactive graphics, it features these possibilities.
+dat <- demoDat
 
-\section{A gallery of tooltips examples}\label{a-gallery-of-tooltips-examples}
 
-The \CRANpkg{palmerpenguins} data (Horst, Hill, and Gorman 2020) features three penguin species which has a lovely illustration by Alison Horst in Figure \ref{fig:penguins-alison}.
+################################################################################
+### Create Table 1 #############################################################
+################################################################################
+# Create table 1
+tbl1 <- table1(~ GROUP_NAME + TIME1 | Gender,
+    data = colData(dat)
+)
 
-\begin{figure}
-\includegraphics[width=1\linewidth,height=0.3\textheight]{figures/penguins} \caption{Artwork by \@allison\_horst}\label{fig:penguins-alison}
-\end{figure}
+# Display table 1
+tbl1
+\end{verbatim}
 
-Table \ref{tab:penguins-tab-static} prints at the first few rows of the \texttt{penguins} data:
+\begin{tabular}[t]{llll}
+\toprule
+  & Female & Male & Overall\\
+\midrule
+ & (N=44) & (N=42) & (N=86)\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{GROUP\_NAME}}\\
+\hspace{1em}Control & 14 (31.8\%) & 14 (33.3\%) & 28 (32.6\%)\\
+\hspace{1em}treat1 & 15 (34.1\%) & 14 (33.3\%) & 29 (33.7\%)\\
+\hspace{1em}treat2 & 15 (34.1\%) & 14 (33.3\%) & 29 (33.7\%)\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{TIME1}}\\
+\hspace{1em}End & 14 (31.8\%) & 15 (35.7\%) & 29 (33.7\%)\\
+\hspace{1em}Onset & 15 (34.1\%) & 14 (33.3\%) & 29 (33.7\%)\\
+\hspace{1em}PreSymp & 15 (34.1\%) & 13 (31.0\%) & 28 (32.6\%)\\
+\bottomrule
+\end{tabular}
+
+\subsection{Exploratory analysis example}\label{exploratory-analysis-example}
+
+To see if the gender is a source of variation in the metabolic profile, we use the ``Gender''
+variable to highlight the male/female sample on the scatter plot of the first
+two principal components. To use the \texttt{metabolite\_pca} function we include the
+following arguments:
+
+\begin{itemize}
+\item
+  data: SummarizedExperiment with Metabolon experiment data.
+\item
+  Assay: Name of the assay to be used for the pairwise analysis (default=`normalized')
+\item
+  meta\_var: A metadata variable to color code the PCA plot by.
+\end{itemize}
+
+\begin{verbatim}
+# Colored by Gender
+metabolite_pca(dat, Assay = "normalized", meta_var = "Gender")
+\end{verbatim}
+
+\includegraphics{main_files/figure-latex/PCA_Plots-1.pdf}
+The samples in the scatter plot above are clearly separated by male/female demonstrating
+that ``Gender'' is a source of variation we should account for in the downstream
+analysis.
+
+The variables ``GROUP\_NAMES'' and ``TIME1'' correspond to the treatment groups and time, respectively. We filter the the metabolites to only show the top 50 metabolites based on the average metabolite levels across all samples. We include the ``GROUP\_NAME'' and ``TIME1'' variables to group the columns and annotate the heatmap. Based on the conclusions from the PCA above, we want to stratify the heatmaps by ``Gender''. We are using the \texttt{metabolite\_heatmap} function which requires the following inputs:
+
+\begin{itemize}
+\item
+  data: A SummarizedExperiment containing the Metabolon experiment data.
+\item
+  top\_mets: Number of metabolites to include in the heatmap. Metabolites are chosen based on the highest overall mean value.
+\item
+  group\_vars: variables to annotate heatmap with. Columns will be grouped by these variables.
+\item
+  strat\_var: Variable to stratify the heatmap by.
+\item
+  caption: A title for the heatmap. If strat\_var is used, the title will automatically include the stratum with the tile.
+\item
+  Assay: Which assay data to use for the heatmap (default=``normalized'').
+\item
+  sample\_names: Column name in the meta data containing the sample names.
+\item
+  \ldots{} Additional arguments can be passed into the arrange function from dplyr to
+  specify the order of the columns.
+\end{itemize}
+
+\begin{verbatim}
+# Heatmap with 2 group and stratified
+metabolite_heatmap(dat,
+    top_mets = 50,
+    group_vars = c("GROUP_NAME", "TIME1"),
+    strat_var = "Gender",
+    caption = "Heatmap Arranged By Group and TIME",
+    Assay = "normalized",
+    sample_names = "PARENT_SAMPLE_NAME",
+    TIME1,GROUP_NAME # Variables to use for annotation column names
+)
+\end{verbatim}
+
+\begin{verbatim}
+#> [[1]]
+\end{verbatim}
+
+\includegraphics{main_files/figure-latex/heatmaps-1.pdf}
+
+\begin{verbatim}
+#> 
+#> [[2]]
+\end{verbatim}
+
+\includegraphics{main_files/figure-latex/heatmaps-2.pdf}
+These heatmaps additionally highlight differences in the metabolomic profiles of
+males and females within this experiment.
+
+\subsection{Sub-pathway analysis example}\label{sub-pathway-analysis-example}
+
+Next, we will test the interaction, parallel and single models at the sub-pathway level. As we identified above, we want to stratify this analysis by ``Gender''. The subpathway\_analysis function allows us to specify a variable to stratify the analysis automatically. We also summarize the results of the sub-pathway analysis in the following tables:
+
+\begin{itemize}
+\item
+  Significant sub-pathways by model (subpath\_by\_model)
+\item
+  Proportion of significant sub pathways within super pathways (subpath\_within\_superpath)
+\item
+  Metabolite results within sub pathways (met\_within\_sub)
+\end{itemize}
+
+The subpathway\_analysis function requires the following inputs:
+
+\begin{itemize}
+\item
+  data: SummarizedExperiment with Metabolon experiment data.
+\item
+  treat\_var: This is the name of the variable in the analysis data that is the main variable of interest. Here we use ``GROUP\_NAME''.
+\item
+  block\_var: This is the name of the blocking variable in the dataset. Here we use ``TIME1''.
+\item
+  strat\_var: Variable to stratify the sub-pathway analysis by. Here we use ``Gender''
+\item
+  Assay: Name of the assay to be used for the pairwise analysis (default=`normalized')
+\item
+  subPathwayName: Column name for sub-pathway information
+\item
+  chemName: Column name for chemical name variable as defined in the chemical annotation data.
+\item
+  superPathwayName: Column name for super-pathway variable as defined in the chemical annotation data.
+\end{itemize}
+
+\begin{verbatim}
+################################################################################
+## Stratified Analysis #########################################################
+################################################################################
+
+# Stratified Analysis
+stratified <- subpathway_analysis(dat,
+    treat_var = "GROUP_NAME",
+    block_var = "TIME1",
+    strat_var = "Gender",
+    Assay = "normalized",
+    subPathwayName = "SUB_PATHWAY",
+    chemName = "CHEMICAL_NAME",
+    superPathwayName = "SUPER_PATHWAY"
+)
+
+
+################################################################################
+### Results Plots ##############################################################
+################################################################################
+
+# 1. significant subpathways by model type
+subpath_by_model(stratified)
+\end{verbatim}
 
 \begin{table}
 \centering
-\caption{\label{tab:penguins-tab-static}A basic table}
+\caption{(\#tab:subpathway_analysis)Sigificant Pathways by Model}
 \centering
-\fontsize{7}{9}\selectfont
-\begin{tabular}[t]{l|l|r|r|r|r|l|r}
+\begin{tabular}[t]{l|r|r}
 \hline
-species & island & bill\_length\_mm & bill\_depth\_mm & flipper\_length\_mm & body\_mass\_g & sex & year\\
+Model Type & Female & Male\\
 \hline
-Adelie & Torgersen & 39.1 & 18.7 & 181 & 3750 & male & 2007\\
+Interaction & 6 & 84\\
 \hline
-Adelie & Torgersen & 39.5 & 17.4 & 186 & 3800 & female & 2007\\
+Parallel & 20 & 12\\
 \hline
-Adelie & Torgersen & 40.3 & 18.0 & 195 & 3250 & female & 2007\\
+Single & 19 & 2\\
 \hline
-Adelie & Torgersen & NA & NA & NA & NA & NA & 2007\\
-\hline
-Adelie & Torgersen & 36.7 & 19.3 & 193 & 3450 & female & 2007\\
-\hline
-Adelie & Torgersen & 39.3 & 20.6 & 190 & 3650 & male & 2007\\
+None & 65 & 12\\
 \hline
 \end{tabular}
 \end{table}
 
-Figure \ref{fig:penguins-ggplot} shows an plot of the penguins data, made using the \CRANpkg{ggplot2} package.
-
 \begin{verbatim}
-penguins %>% 
-  ggplot(aes(x = bill_depth_mm, y = bill_length_mm, 
-             color = species)) + 
-  geom_point()
+# 2. Percentage of signficant subpathways within superpathways
+subpath_within_superpath(stratified)
 \end{verbatim}
 
-\begin{figure}
+\begin{table}
 \centering
-\includegraphics{Main_files/figure-latex/penguins-ggplot-1.pdf}
-\caption{\label{fig:penguins-ggplot}A basic non-interactive plot made with the ggplot2 package on palmer penguin data. Three species of penguins are plotted with bill depth on the x-axis and bill length on the y-axis. Visit the online article to access the interactive version made with the plotly package.}
-\end{figure}
+\caption{(\#tab:subpathway_analysis)Proportion of significant subpathways within super-pathways}
+\centering
+\begin{tabular}[t]{l|l|l}
+\hline
+Super Pathway & Percent Significant 
+ (Female) & Percent Significant 
+ (Male)\\
+\hline
+Xenobiotics & 5 / 5 (100\%) & 5 / 5 (100\%)\\
+\hline
+Amino Acid & 13 / 16 (81.25\%) & 16 / 16 (100\%)\\
+\hline
+Peptide & 3 / 5 (60\%) & 3 / 5 (60\%)\\
+\hline
+Nucleotide & 3 / 8 (37.5\%) & 8 / 8 (100\%)\\
+\hline
+Lipid & 16 / 53 (30.19\%) & 46 / 53 (86.79\%)\\
+\hline
+Carbohydrate & 2 / 8 (25\%) & 7 / 8 (87.5\%)\\
+\hline
+Cofactors and Vitamins & 2 / 11 (18.18\%) & 9 / 11 (81.82\%)\\
+\hline
+Energy & 0 / 2 (0\%) & 2 / 2 (100\%)\\
+\hline
+Partially Characterized Molecules & 0 / 1 (0\%) & 1 / 1 (100\%)\\
+\hline
+\end{tabular}
+\end{table}
 
-\section{Summary}\label{summary-1}
+\begin{verbatim}
+# 3. Metabolites within subpathway
+tables <- met_within_sub(stratified,
+    subpathway = "Drug - Topical Agents"
+)
 
-We have displayed various tooltips that are available in the package \pkg{ToOoOlTiPs}.
+### Females
+tables[[1]]
+\end{verbatim}
+
+\begin{table}
+\centering
+\caption{(\#tab:subpathway_analysis)Metabolites within Drug - Topical Agents (Female)}
+\centering
+\begin{tabular}[t]{l|r|r|r}
+\hline
+Metabolite Name & Interaction\_pval P-Value & Parallel\_pval P-Value & Single\_pval P-Value\\
+\hline
+salicylate & 0.262 & 0.009 & 0.003\\
+\hline
+hydroquinone sulfate & 0.053 & 0.045 & 0.001\\
+\hline
+2,6-dihydroxybenzoic acid & 0.211 & 0.619 & 0.007\\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{verbatim}
+### Males
+tables[[2]]
+\end{verbatim}
+
+\begin{table}
+\centering
+\caption{(\#tab:subpathway_analysis)Metabolites within Drug - Topical Agents (Male)}
+\centering
+\begin{tabular}[t]{l|r|r|r}
+\hline
+Metabolite Name & Interaction\_pval P-Value & Parallel\_pval P-Value & Single\_pval P-Value\\
+\hline
+salicylate & 0.411 & 0.006 & 0.744\\
+\hline
+hydroquinone sulfate & 0.408 & 0.033 & 0.599\\
+\hline
+2,6-dihydroxybenzoic acid & 0.171 & 0.011 & 0.110\\
+\hline
+\end{tabular}
+\end{table}
+
+More sub-pathways had at least one significant model in males than females. Three super-pathways had at least one significant model in more than half of the sub-pathways in both males and females (peptide, amino acids, xenobiotics). Drug and topical agents are a sub-pathway within the Xenobiotics super pathway, and we can see for males, the metabolites within this sub-pathway were only affected by time. Meanwhile, in females, metabolites were affected by time and treatment. For these plots we are focusing only on the female samples.
+
+Based on the results of the sub-pathway analysis, the drug and topical sub-pathway may be of interest. We can visualize the data for each metabolite within the sub-pathway using the subpathway\_boxplots function or the subpathway\_lineplots function. Both of these functions require the following arguments:
+
+\begin{itemize}
+\item
+  data: SummarizedExperiment with Metabolon experiment data.
+\item
+  subpathway: Character value of the sub-pathway of interest. Here we are using ``Drug - Topical Agents''.
+\item
+  block\_var: The name of blocking variable from the analysis. In this case ``TIME1''
+\item
+  treat\_var: The name of the treatment variable (``GROUP\_NAME'')
+\item
+  Assay: Name of the assay to be used for the pairwise analysis (default=`normalized')
+\item
+  CHEMICAL\_NAME: Column name in the chemical annotation data which contains the chemical name.
+\item
+  SUB\_PATHWAY: Column name in chemical annotation data which contains the SUB\_PATHWAY information
+\item
+  \ldots: Additional arguments to filter the analysis data by.
+\end{itemize}
+
+\begin{verbatim}
+################################################################################
+### BoxPlots ###################################################################
+################################################################################
+
+subpathway_boxplots(dat,
+    subpathway = "Drug - Topical Agents", block_var = TIME1,
+    treat_var = GROUP_NAME, Assay = "normalized",
+    CHEMICAL_NAME = "CHEMICAL_NAME",
+    SUB_PATHWAY = "SUB_PATHWAY",
+    Gender == "Male" # only using female samples
+) +
+  xlab("Time")
+\end{verbatim}
+
+\includegraphics{main_files/figure-latex/lineplotsAndBoxplots-1.pdf}
+
+\begin{verbatim}
+################################################################################
+## Line plots ##################################################################
+################################################################################
+
+# Set up data
+dat$TIME1 <- as.numeric(factor(dat$TIME1,
+    levels = c("PreSymp", "Onset", "End")
+))
+
+# Create line plots
+subpathway_lineplots(dat,
+    subpathway = "Drug - Topical Agents",
+    block_var = TIME1, treat_var = GROUP_NAME,
+    Assay = "normalized",
+    CHEMICAL_NAME = "CHEMICAL_NAME",
+    SUB_PATHWAY = "SUB_PATHWAY",
+    Gender == "Male"
+) +
+    xlab("Time")
+\end{verbatim}
+
+\includegraphics{main_files/figure-latex/lineplotsAndBoxplots-2.pdf}
+
+\subsection{Pairwise comparisons example}\label{pairwise-comparisons-example}
+
+Next we will look at all pairwise comparisons resulting in 36 total group
+comparisons. The inputs for the metabolite pairwise function are:
+
+\begin{itemize}
+\item
+  data: SummarizedExperiment with Metabolon Inc.~experiment data.
+\item
+  form: This is a character string the resembles the right hand side of a simple linear regression model in R.
+\item
+  Assay: Name of the assay to be used for the pairwise analysis (default=`normalized')
+\item
+  strat\_var: A variable in the analysis data to stratify the model by. Here were stratify by ``Gender''
+\item
+  mets: Chemical ID for the metabolites of interest. We leave this NULL to run the analysis on all metabolites.
+\end{itemize}
+
+We visualize the results using the met\_est\_heatmap and met\_p\_heatmap functions. Each of these functions includes an option (interactive = TRUE/FALSE) to specify whether the generated heatmap should be interactive. Here we only show the results for the female samples.
+
+\begin{verbatim}
+################################################################################
+#### Run Pairwise Comparisons ##################################################
+################################################################################
+
+strat_pairwise <- metabolite_pairwise(dat,
+    form = "GROUP_NAME*TIME1",
+    Assay = "normalized",
+    strat_var = "Gender",
+    mets = NULL
+)
+\end{verbatim}
+
+\begin{verbatim}
+###############################################################################
+## Create Estimate Heatmap #####################################################
+################################################################################
+
+met_est_heatmap(strat_pairwise$Female, dat,
+    interactive = TRUE,
+     SUB_PATHWAY = "SUB_PATHWAY",
+    CHEMICAL_NAME = "CHEMICAL_NAME",
+    plotlyTitle = "Estimate Heatmap (Female)",
+    main = "Log fold change heatmap"
+)
+
+################################################################################
+## Create P-value Heatmap ######################################################
+################################################################################
+# Female
+met_p_heatmap(strat_pairwise$Female, dat,
+    interactive = TRUE, show_rownames = FALSE,
+    plotlyTitle = "Pvalue Heatmap (Male)",
+    main = "Pvalue Heatmap"
+)
+\end{verbatim}
+
+\begin{verbatim}
+###############################################################################
+## Create Estimate Heatmap #####################################################
+################################################################################
+
+met_est_heatmap(strat_pairwise$Female, dat,
+    interactive = FALSE,
+     SUB_PATHWAY = "SUB_PATHWAY",
+    CHEMICAL_NAME = "CHEMICAL_NAME",
+    plotlyTitle = "Estimate Heatmap",
+    main = "Log fold change heatmap",
+    show_rownames = FALSE
+)
+\end{verbatim}
+
+\includegraphics{main_files/figure-latex/static-visualization-1.pdf}
+
+\begin{verbatim}
+################################################################################
+## Create P-value Heatmap ######################################################
+################################################################################
+# Female
+met_p_heatmap(strat_pairwise$Female, dat,
+    interactive = FALSE, show_rownames = FALSE,
+    plotlyTitle = "Pvalue Heatmap",
+    main = "Pvalue Heatmap"
+)
+\end{verbatim}
+
+\includegraphics{main_files/figure-latex/static-visualization-2.pdf}
+
+\section{Summary}\label{summary}
+
+Targeted metabolomics is a valuable tool for identifying biomarkers. Companies like Metabolon Inc.~utilize proprietary software to analyze the data and deliver results to the customer. However, these types of software often do not follow reproducibility best practices, which can limit the transparency and repeatability of the research. In contrast, using open-source tools like R, facilitates reproducibility by allowing researchers to share and collaborate on open-source pipelines.
+
+We demonstrated a new package, \pkg{MetabolomicsPipeline}, for analyzing targeted metabolomics data. The package contains tools for exploratory analysis, sub-pathway analysis, and pairwise comparisons across experimental groups. It supports data that can be organized into a SummarizedExperiment data class. This package also provides functionality to visually display the results from each analysis step, including various graphs and tables. When analyzing pairwise comparisons, users can create interactive heatmaps, enhancing the presentation of results. We provide all the functionality of the MetabolomicsPipeline through a user-friendly interface built with R Shiny, ensuring ease of use for researchers.
 
 \section*{References}\label{references}
 \addcontentsline{toc}{section}{References}
 
 \phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}
-\bibitem[\citeproctext]{ref-crosstalk}
-Cheng, Joe, and Carson Sievert. 2021. \emph{{crosstalk}: Inter-Widget Interactivity for HTML Widgets}. \url{https://CRAN.R-project.org/package=crosstalk}.
+\bibitem[\citeproctext]{ref-Bhagwat2024}
+Bhagwat, A., R. Cotton, S. Hayat, and J. Graumann. 2024. {``Autonomics: Unified Statistical Modeling of Omics Data.''} \url{https://github.com/bhagwataditya/autonomics}.
 
-\bibitem[\citeproctext]{ref-palmerpenguins}
-Horst, Allison Marie, Alison Presmanes Hill, and Kristen B Gorman. 2020. \emph{{palmerpenguins}: Palmer Archipelago (Antarctica) Penguin Data}. \url{https://allisonhorst.github.io/palmerpenguins/}.
+\bibitem[\citeproctext]{ref-goble2020fair}
+Goble, Carole, Sarah Cohen-Boulakia, Stian Soiland-Reyes, Daniel Garijo, Yolanda Gil, Michael R Crusoe, Kristian Peters, and Daniel Schober. 2020. {``FAIR Computational Workflows.''} \emph{Data Intelligence} 2 (1-2): 108--21.
 
-\bibitem[\citeproctext]{ref-plotly}
-Sievert, Carson. 2020. \emph{{Interactive Web-Based Data Visualizatio}n with r, Plotly, and Shiny}. Chapman; Hall/CRC. \url{https://plotly-r.com}.
+\bibitem[\citeproctext]{ref-pheatmap}
+Kolde, Raivo. 2019. \emph{Pheatmap: Pretty Heatmaps}. \url{https://CRAN.R-project.org/package=pheatmap}.
 
-\bibitem[\citeproctext]{ref-RJ-2021-050}
-Wang, Earo, and Dianne Cook. 2021. {``Conversations in Time: Interactive Visualisation to Explore Structured Temporal Data.''} \emph{The R Journal}. \url{https://doi.org/10.32614/RJ-2021-050}.
+\bibitem[\citeproctext]{ref-SummarizedExperiment}
+M, Morgan, Obenchain V, Hester J, and Pagès H. 2024. \emph{SummarizedExperiment: SummarizedExperiment Container}. \url{https://bioconductor.org/packages/SummarizedExperiment}.
+
+\bibitem[\citeproctext]{ref-metabolon_biomarker_discovery}
+Metabolon, Inc. n.d. {``Biomarker Discovery Analysis.''} \url{https://www.metabolon.com/services/biomarker-discovery-analysis/}.
+
+\bibitem[\citeproctext]{ref-pang2020metaboanalystr}
+Pang, Zhiqiang, Jasmine Chong, Shuzhao Li, and Jianguo Xia. 2020. {``MetaboAnalystR 3.0: Toward an Optimized Workflow for Global Metabolomics.''} \emph{Metabolites} 10 (5): 186.
+
+\bibitem[\citeproctext]{ref-table1}
+Rich, Benjamin. 2023. \emph{Table1: Tables of Descriptive Statistics in HTML}. \url{https://CRAN.R-project.org/package=table1}.
+
+\bibitem[\citeproctext]{ref-roberts2012targeted}
+Roberts, Lisa D, Ana L Souza, Robert E Gerszten, and Clary B Clish. 2012. {``Targeted Metabolomics.''} \emph{Current Protocols in Molecular Biology} Chapter 30: Unit30.2--30.2.24. \url{https://doi.org/10.1002/0471142727.mb3002s98}.
+
+\bibitem[\citeproctext]{ref-fisherTest}
+Westberg, Margareta. 1985. {``Combining Independent Statistical Tests.''} \emph{Journal of the Royal Statistical Society. Series D (The Statistician)} 34 (3): 287--96. \url{http://www.jstor.org/stable/2987655}.
 
 \end{CSLReferences}
 
 
 \address{%
-Quietest Quokka\\
-University of Little Mates\\%
-Department of Letter Q\\ Somewhere, Australia\\
+Joel Parker\\
+University of Arizona\\%
+Mel and Enid Zuckerman School of Public Health\\ Tucson, Arizona\\
 %
-\url{https://www.britannica.com/animal/quokka}\\%
-\textit{ORCiD: \href{https://orcid.org/0000-1721-1511-1101}{0000-1721-1511-1101}}\\%
-\href{mailto:qquo@ulm.edu}{\nolinkurl{qquo@ulm.edu}}%
+\url{https://publichealth.arizona.edu/}\\%
+\textit{ORCiD: \href{https://orcid.org/0000-0002-3411-3818}{0000-0002-3411-3818}}\\%
+\href{mailto:joelparker@arizona.edu}{\nolinkurl{joelparker@arizona.edu}}%
 }
 
 \address{%
-Bounciest Bilby\\
-University of Little MatesUniversity of Aussie Animals\\%
-Department of Letter Q, Somewhere, Australia\\ Department of Marsupials, Somewhere, Australia\\
+Lisa White\\
+University of Arizona\\%
+Bio5 Institute\\
 %
-\url{https://www.britannica.com/animal/bilby}\\%
-\textit{ORCiD: \href{https://orcid.org/0000-0002-0912-0225}{0000-0002-0912-0225}}\\%
-\href{mailto:bbil@ulm.edu}{\nolinkurl{bbil@ulm.edu}}%
+\url{https://bio5.org/}\\%
+\textit{ORCiD: \href{https://orcid.org/XXXX}{XXXX}}\\%
+XXXX%
+}
+
+\address{%
+Bonnie Lafleur\\
+University of Arizona\\%
+Bio5 Institute\\
+%
+\url{https://www.pharmacy.arizona.edu/person/bonnie-lafleur-0}\\%
+\textit{ORCiD: \href{https://orcid.org/XXXX}{XXXX}}\\%
+XXXX%
 }
