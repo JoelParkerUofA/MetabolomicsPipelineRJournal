@@ -44,7 +44,6 @@ bibliography: RJreferences.bib
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 library(plotly)
 library(ggplot2)
-library(palmerpenguins)
 library(kableExtra)
 library(dplyr)
 
@@ -86,7 +85,7 @@ The \pkg{MetabolomicsPipeline} package utilizes the \pkg{SummarizedExperiment} [
 The remainder of this paper is organized as follows. Section 2 discusses the package design and structure, providing detailed information on the analysis methods and algorithms used. Section 3 illustrates the application of the package through a case study using targeted metabolomic data from Metabolon. 
 
 # Package Design
-Metabolon Inc. provides customers with raw, batch-corrected, and standardized data generated from their proprietary pipeline. Additionally, they include chemical annotation data, detailing the sub-pathway and super-pathway for each metabolite, as well as sample metadata for each sample in the experiment. Metabolon consolidates all this information into a single Excel file. By organizing the experimental data into a SummarizedExperiment class, users can maintain all relevant information throughout the entire workflow. While the \pkg{MetabolomicsPipline} package includes wrappers for quickly loading Metabolon Inc. experiments into a SummarizedExperiment using the 'load_metabolon' function, the rest of the \pkg{MetabolomicPipeline} package is versatile enough to analyze experimental data from any targeted metabolomics assay that can be organized into a SummarizedExperiment data class. Figure 2, shows how to organize targeted metabolomics data into a SumarizedExperiment. 
+Metabolon Inc. provides customers with raw, batch-corrected, and standardized data generated from their proprietary pipeline. Additionally, they include chemical annotation data, detailing the sub-pathway and super-pathway for each metabolite, as well as sample metadata for each sample in the experiment. Metabolon consolidates all this information into a single Excel file. By organizing the experimental data into a SummarizedExperiment class, users can maintain all relevant information throughout the entire workflow. While the \pkg{MetabolomicsPipline} package includes wrappers for quickly loading Metabolon Inc. experiments into a SummarizedExperiment using the 'load_metabolon' function, the rest of the \pkg{MetabolomicPipeline} package is versatile enough to analyze experimental data from any targeted metabolomics assay that can be organized into a SummarizedExperiment data class. Figure 2, shows how to organize targeted metabolomics data into a SumarizedExperiment. Leveraging the functionality of the SummarizedExperiment data class facilitates easy integration of the \pkg{MetabolomicsPipeline} into multi-omics pipelines [@hutchison2024tidyomics].
 
 
 ```{r SEOrganization, out.width = "100%", out.height = "100%", fig.cap = "Organization of Metabolon Inc data into a SummarizedExperiment", echo=FALSE}
@@ -116,7 +115,7 @@ For each metabolite, we consider experimental designs that can utilize two-way A
 
 3.) Single: $metbabolite= Treatment$
 
-In the interaction model, we test for a significant interaction between the treatment and block variables, focusing on the p-value for the interaction term. In contrast, the parallel model examines the treatment and block variables without the interaction term, assessing whether the blocking variable explains a significant amount of variation in the metabolite levels; thus, we only consider the p-value pertaining to the block variable. Lastly, the final model includes only the treatment group to determine if there are significant differences in average metabolite levels by treatment group.
+In the interaction model, we test for a significant interaction between the treatment and block variables, focusing on the p-value for the interaction term. In contrast, the parallel model examines the treatment and block variables without the interaction term, assessing whether the blocking variable explains a significant amount of variation in the metabolite levels; thus, we only consider the p-value pertaining to the block variable. Lastly, the final model includes only the treatment group to determine if there are significant differences in average metabolite levels  tbetween treatment group.
 
 Once we have the p-values for each model, we can test the hypothesis from each model at the sub-pathway level using the combined Fisher probability method. In this method, the p-values for each independently tested metabolite within the sub-pathway are transformed and summed to create the chi-squared test statistic $X$ using the following function:
 $$
@@ -158,7 +157,7 @@ Each heatmap has a static or interactive option. The interactive heatmap option 
 
 
 ## Shiny App
-All of the functionality of the MetabolomicsPipeline package can be accessed through 
+All of the functionality of the MetabolomicsPipeline package can be accessed through... 
 
 
 # Case Study
@@ -280,7 +279,7 @@ The subpathway_analysis function requires the following inputs:
 
 * superPathwayName: Column name for super-pathway variable as defined in the chemical annotation data.
 
-```{r subpathway_analysis}
+```{r subpathway_analysis, eval=FALSE}
 ################################################################################
 ## Stratified Analysis #########################################################
 ################################################################################
@@ -302,10 +301,14 @@ stratified <- subpathway_analysis(dat,
 ################################################################################
 
 # 1. significant subpathways by model type
-subpath_by_model(stratified)
+subpathByModel <- subpath_by_model(stratified)
+
+subpathByModel
 
 # 2. Percentage of signficant subpathways within superpathways
-subpath_within_superpath(stratified)
+subpathWithinSuperpath <- subpath_within_superpath(stratified)
+
+subpathWithinSuperpath 
 
 # 3. Metabolites within subpathway
 tables <- met_within_sub(stratified,
